@@ -2,10 +2,16 @@ import { useState } from "react"
 
 const Forms = () => {
 const [firstName, setFirstName]    = useState('');
+const [lastName, setLastName]    = useState('');
 function handleFirstChange(e: any) {
 
 // ✅ Updating a controlled input to e.target.value synchronously
 setFirstName(e.target.value);
+}
+function handleLastChange(e: any) {
+
+// ✅ Updating a controlled input to e.target.value synchronously
+setLastName(e.target.value);
 }
 function handleSubmit(e: any) {
     e.preventDefault();
@@ -15,6 +21,7 @@ console.log(firstName)
 const form = e.target;
 const formData: any = new FormData(form);
 setFirstName('');
+setLastName('');
 // You can pass formData as a fetch body directly:
 fetch('/some-api', { method: form.method, body: formData });
 // You can generate a URL out of it, as the browser does by default:
@@ -33,6 +40,11 @@ return (
       name="firstName" 
       value={firstName}  // ...force the input's value to match the state variable...
       onChange={e => handleFirstChange(e)} // ... and update the state variable on any edits!
+    />
+    <input 
+      name="lastName" 
+      value={lastName}  // ...force the input's value to match the state variable...
+      onChange={e => handleLastChange(e)} // ... and update the state variable on any edits!
     />
     <button type="submit">Add</button>
    </form>
