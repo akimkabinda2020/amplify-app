@@ -14,7 +14,7 @@ import Notes from "./Notes";
 function App() {
   return (
     <View className="App">
-      <p>Hello!</p>
+      <p>Hello from feat-4</p>
     </View>
   );
 }
