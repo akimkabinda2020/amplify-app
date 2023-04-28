@@ -6,9 +6,19 @@ import {
   deleteNote as deleteNoteMutation,
   updateNote as updateNoteMutation,
 } from "./graphql/mutations";
+import { onCreateNote } from "./graphql/subscriptions";
 import { API, graphqlOperation } from "aws-amplify";
-import { ListNotesQuery, Note } from "./API";
-import { GraphQLResult, GraphQLQuery } from "@aws-amplify/api";
+import {
+  ListNotesQuery,
+  Note,
+  OnCreateNoteSubscription,
+  OnUpdateNoteSubscription,
+} from "./API";
+import {
+  GraphQLResult,
+  GraphQLQuery,
+  GraphQLSubscription,
+} from "@aws-amplify/api";
 import {
   Button,
   Flex,
@@ -17,6 +27,7 @@ import {
   Text,
   TextField,
 } from "@aws-amplify/ui-react";
+import { onUpdateNote } from "./graphql/subscriptions";
 
 const Notes = () => {
   const initialValues = {
@@ -31,6 +42,38 @@ const Notes = () => {
 
   useEffect(() => {
     getNotes();
+  }, []);
+
+  useEffect(() => {
+    // Subscribe to creation of Todo
+    const createSub = API.graphql<
+      GraphQLSubscription<OnCreateNoteSubscription>
+    >(graphqlOperation(onCreateNote)).subscribe({
+      next: ({ provider, value }) => {
+        console.log({ provider, value });
+        const newNote = value?.data?.onCreateNote as Note;
+        console.log("newNote", newNote);
+        setNotes((notes) => [...notes, newNote]);
+      },
+      error: (error) => console.warn(error),
+    });
+
+    const updateSub = API.graphql<
+      GraphQLSubscription<OnUpdateNoteSubscription>
+    >(graphqlOperation(onUpdateNote)).subscribe({
+      next: ({ provider, value }) => {
+        console.log({ provider, value });
+        const updateNote = value?.data?.onUpdateNote as Note;
+        console.log("data", updateNote);
+        const filterNotes = notes.filter((note) => note?.id !== updateNote?.id);
+        setNotes([...filterNotes, updateNote]);
+      },
+      error: (error) => console.warn(error),
+    });
+
+    // Stop receiving data updates from the subscription
+    //createSub.unsubscribe();
+    //updateSub.unsubscribe();
   }, []);
 
   const getNotes = async () => {
@@ -165,13 +208,9 @@ const Notes = () => {
 
       <Heading level={4}>Current Notes</Heading>
       <View margin="1rem 0">
-        {notes?.map((note) => {
+        {notes?.map((note, index) => {
           return (
-            <Flex
-              key={note?.id || note?.name}
-              direction="row"
-              alignItems="center"
-            >
+            <Flex key={index} direction="row" alignItems="center">
               {" "}
               <Text as="span">{note?.id}</Text>
               <Text as="strong" fontWeight={100}>
