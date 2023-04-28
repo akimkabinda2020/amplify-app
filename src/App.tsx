@@ -11,16 +11,12 @@ import {
 
 import Notes from "./Notes";
 
-function App({ signOut, user }: WithAuthenticatorProps) {
+function App() {
   return (
     <View className="App">
-      <Card>
-        <Heading level={1}>{user?.username} now have Auth!</Heading>
-      </Card>
-      <Button onClick={signOut}> Sign Out</Button>
-      <Notes />
+      <p>Hello!</p>
     </View>
   );
 }
 
-export default withAuthenticator(App);
+export default App;
