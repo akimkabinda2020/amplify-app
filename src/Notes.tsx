@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { listNotes } from "./graphql/queries";
 import {
@@ -42,10 +42,7 @@ const Notes = () => {
 
   useEffect(() => {
     getNotes();
-  }, []);
-
-  useEffect(() => {
-    // Subscribe to creation of Todo
+    //list();
     const createSub = API.graphql<
       GraphQLSubscription<OnCreateNoteSubscription>
     >(graphqlOperation(onCreateNote)).subscribe({
@@ -53,7 +50,7 @@ const Notes = () => {
         console.log({ provider, value });
         const newNote = value?.data?.onCreateNote as Note;
         console.log("newNote", newNote);
-        setNotes((notes) => [...notes, newNote]);
+        setNotes([...notes, newNote]);
       },
       error: (error) => console.warn(error),
     });
@@ -71,10 +68,41 @@ const Notes = () => {
       error: (error) => console.warn(error),
     });
 
-    // Stop receiving data updates from the subscription
-    //createSub.unsubscribe();
-    //updateSub.unsubscribe();
+    return () => {
+      // Stop receiving data updates from the subscription
+      //createSub.unsubscribe();
+      //updateSub.unsubscribe();
+    };
   }, []);
+
+  // useEffect(() => {
+  //   getRestaurantList();
+
+  //   const subscription = API.graphql(
+  //     graphqlOperation(onCreateRestaurant)
+  //   ).subscribe({
+  //     next: (
+  //       eventData: SubscriptionEvent<{ onCreateRestaurant: Restaurant }>
+  //     ) => {
+  //       const payload = eventData.value.data.onCreateRestaurant;
+  //       dispatch({ type: "SUBSCRIPTION", payload });
+  //     },
+  //   });
+
+  //   return () => subscription.unsubscribe();
+  // }, []);
+
+  const onUpdateNoteSubscription = async () => {};
+  // later down in your code
+  const list = async () => {
+    const response = await API.graphql({
+      query: listNotes,
+      variables: {
+        // <your variables, optional>
+      },
+    });
+    console.log("response", response);
+  };
 
   const getNotes = async () => {
     try {

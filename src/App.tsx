@@ -1,4 +1,3 @@
-import React from "react";
 import "@aws-amplify/ui-react/styles.css";
 import {
   Card,
